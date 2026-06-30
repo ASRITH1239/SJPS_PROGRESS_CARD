@@ -359,9 +359,62 @@
     height: calc(var(--card-width) * 0.08); /* Increased height for writing */
     min-height: 40px;
   }
+
+  /* Excel Download Button */
+  .download-excel-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(16, 124, 65, 0.2); /* Excel green transparent */
+    border: 1px solid rgba(16, 124, 65, 0.5);
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 30px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 200;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .download-excel-btn:hover {
+    background: rgba(16, 124, 65, 0.4);
+    border-color: rgba(16, 124, 65, 0.7);
+    transform: translateY(-2px);
+  }
+
+  .download-excel-btn:active {
+    transform: translateY(1px);
+  }
+
+  .download-excel-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  @media (max-width: 768px) {
+    .download-excel-btn {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      top: 15px;
+      right: 15px;
+    }
+  }
 </style>
 </head>
 <body>
+
+<!-- Download Excel Button -->
+<a href="SJPS_progress%20card.xlsx" download class="download-excel-btn">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+  Download Excel
+</a>
 
 <div class="scene">
   <!-- Navigation Controls -->
