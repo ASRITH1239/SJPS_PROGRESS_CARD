@@ -7,17 +7,16 @@
 <style>
   :root {
     --bg-gradient: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
-    --card-width: 40vw;
+    --card-width: 45vw;
     --card-height: calc(var(--card-width) * 1.4); /* 5:7 Aspect Ratio */
     --transition-speed: 1.2s;
     --shadow-color: rgba(0, 0, 0, 0.4);
-    --pink-accent: #c2185b;
   }
 
   @media (min-width: 1000px) {
     :root {
-      --card-width: 400px;
-      --card-height: 560px;
+      --card-width: 450px;
+      --card-height: 630px;
     }
   }
 
@@ -122,13 +121,11 @@
   .back-side-cover {
     background: #ffffff;
     transform: rotateY(180deg);
-    border: 2px solid var(--pink-accent);
   }
 
   /* Inside Right: Holds right half of the HTML table */
   .front-side-inside {
     background: #ffffff;
-    border: 2px solid var(--pink-accent);
   }
 
   .back-side-inside {
@@ -278,7 +275,6 @@
     left: calc(var(--card-width) * -1);
   }
 
-  /* Progress Card Table Styles (Pink, Black, White theme) */
   .ritz {
     width: 100%;
     height: 100%;
@@ -291,6 +287,7 @@
     width: 100%;
     height: 100%;
     border-collapse: collapse;
+    border: 2px solid #C2185B; /* Pink outer border */
     font-family: 'Segoe UI', Arial, sans-serif;
     color: #000000;
   }
@@ -299,53 +296,68 @@
   .waffle td, .waffle th {
     font-size: calc(var(--card-width) * 0.021);
     border: 1px solid #000000;
-    padding: 1px 2px;
+    padding: 2px 4px;
     vertical-align: middle;
     text-align: center;
-    background: #ffffff;
+    background: #ffffff; /* White background everywhere */
   }
 
   /* Top Student Info Banner Row */
   .waffle .s0 {
     font-weight: bold;
-    background-color: #ffffff;
     color: #000000;
     text-align: left;
-    padding: 4px 8px;
-    font-size: calc(var(--card-width) * 0.022);
+    padding: 6px 12px;
+    font-size: calc(var(--card-width) * 0.023);
     border-bottom: 2px solid #000000;
   }
 
-  /* Bold Left Aligned text */
-  .waffle .s2 {
-    text-align: left;
-    font-weight: 500;
-  }
-
-  /* Heading Cells */
+  /* Header cell styles */
   .waffle .s3 {
     font-weight: bold;
+    color: #000000;
   }
 
   .waffle .s4 {
     font-weight: bold;
     text-align: left;
+    color: #000000;
   }
 
-  /* Highlight Pink Texts */
-  .waffle .pink-text {
-    color: var(--pink-accent);
+  /* Subject column / Left aligned text */
+  .waffle .s2 {
+    text-align: left;
+    font-weight: 500;
+  }
+
+  /* Totals and Attendance headers */
+  .waffle td[rowspan="2"], .waffle td[colspan="3"] {
     font-weight: bold;
   }
 
-  /* High empty rows (Attendance inputs / Remarks) */
-  .waffle .tall-row td {
-    height: calc(var(--card-height) * 0.07); /* Larger height so they can write easily */
+  .waffle tr:nth-child(21) td, .waffle tr:nth-child(11) td, .waffle tr:nth-child(12) td, .waffle tr:nth-child(13) td {
+    font-weight: bold;
   }
 
-  /* Subject list specific sizing */
-  .waffle tr {
-    height: calc(var(--card-height) * 0.035);
+  .waffle tr:nth-child(23) td, .waffle tr:nth-child(24) td, .waffle tr:nth-child(25) td, .waffle tr:nth-child(26) td {
+    text-align: left;
+    font-weight: bold;
+  }
+
+  /* Attendance styles */
+  .waffle td.attendance-header {
+    color: #C2185B !important; /* Pink ATTENDANCE text */
+    font-weight: bold;
+  }
+
+  .waffle tr.attendance-months td {
+    border-bottom: 2px solid #C2185B; /* Pink line between months and empty boxes */
+    font-weight: bold;
+  }
+
+  .waffle tr.attendance-boxes td {
+    height: calc(var(--card-width) * 0.08); /* Increased height for writing */
+    min-height: 40px;
   }
 </style>
 </head>
@@ -371,7 +383,7 @@
               <table class="waffle" cellspacing="0" cellpadding="0">
                 <tbody>
                   <tr>
-                    <td class="s0" dir="ltr" colspan="12">Name of the Student (Full Name) : ____________________________ &nbsp;&nbsp; Class : ______ &nbsp;&nbsp; Sec : ______ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the Teacher : ____________________</td>
+                    <td class="s0" dir="ltr" colspan="13">Name of the Student (Full Name) : ____________________________ &nbsp;&nbsp; Class : ______ &nbsp;&nbsp; Sec : ______ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the Teacher : ____________________</td>
                   </tr>
                   <tr>
                     <td></td>
@@ -380,40 +392,29 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td colspan="4" class="s3">(With Degy Designation)</td>
-                    <td class="s3" rowspan="2">TOTAL<br>100%</td>
-                    <td class="s3" rowspan="2">Grade</td>
+                    <td></td>
+                    <td></td>
+                    <td colspan="3">Weightage for promotion</td>
+                    <td class="s3" dir="ltr" rowspan="2">TOTAL<br>100%</td>
+                    <td class="s3" dir="ltr" rowspan="2">Grade</td>
                   </tr>
                   <tr>
                     <td class="s3">S.No.</td>
                     <td class="s4">Subject</td>
-                    <td class="s3" dir="ltr">Unit<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Unit<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Yearly<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Yearly<br>Full<br>100 M</td>
-                    <td class="s3" dir="ltr">Unit<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Yearly<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Full Exam<br>25 M</td>
-                    <td class="s3" dir="ltr">Yearly Exam<br>100 M</td>
-                  </tr>
-                  <!-- 9 Subjects -->
-                  <tr>
-                    <td dir="ltr">1.</td>
-                    <td class="s2" dir="ltr">English Language ( ECA )</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td class="s3" dir="ltr">I Unit<br>Test</td>
+                    <td class="s3" dir="ltr">II Unit<br>Test</td>
+                    <td class="s3" dir="ltr">III unit<br>Test</td>
+                    <td class="s3" dir="ltr">IV Unit <br>Test</td>
+                    <td class="s3" dir="ltr">Term<br>Exam.</td>
+                    <td class="s3" dir="ltr">Annual<br>Exam.</td>
+                    <td class="s3" dir="ltr">Unit Exams<br>25%</td>
+                    <td class="s3" dir="ltr">Term Exam<br>25%</td>
+                    <td class="s3" dir="ltr">Annual<br>Exam<br>50%</td>
                   </tr>
                   <tr>
-                    <td dir="ltr">2.</td>
-                    <td class="s2" dir="ltr">English Literature ( ECA )</td>
+                    <td dir="ltr">1</td>
+                    <td class="s2" dir="ltr">English Literature</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -426,21 +427,7 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">3.</td>
-                    <td class="s2">Second Language (Multilingual)</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td dir="ltr">4.</td>
+                    <td dir="ltr">2</td>
                     <td class="s2">Spelling / Writing</td>
                     <td></td>
                     <td></td>
@@ -452,23 +439,25 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                  </tr>
-                  <tr>
-                    <td dir="ltr">5.</td>
-                    <td class="s2" dir="ltr">Third Language (Multilingual)</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">6.</td>
+                    <td dir="ltr">3</td>
+                    <td class="s2" dir="ltr">Second Language (Hindi/Telugu)</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">4</td>
                     <td class="s2">Mathematics</td>
                     <td></td>
                     <td></td>
@@ -480,24 +469,12 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                  </tr>
-                  <tr>
-                    <td dir="ltr">7.</td>
-                    <td class="s2" dir="ltr">Gen. Challenge (Multilingual)</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">8.</td>
-                    <td class="s2" dir="ltr">Mind Scape E.V.S.</td>
+                    <td dir="ltr">5</td>
+                    <td class="s2" dir="ltr">E.V.S</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -510,7 +487,7 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">9.</td>
+                    <td dir="ltr">6</td>
                     <td class="s2" dir="ltr">Computer</td>
                     <td></td>
                     <td></td>
@@ -522,11 +499,12 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
                   </tr>
-                  <!-- Calculations -->
                   <tr>
                     <td></td>
-                    <td class="s2 pink-text">TOTAL</td>
+                    <td class="s2">TOTAL</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -551,6 +529,7 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
                   </tr>
                   <tr>
                     <td></td>
@@ -565,25 +544,12 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                  </tr>
-                  <!-- 6 Activities -->
-                  <tr>
-                    <td dir="ltr">1.</td>
-                    <td class="s2" dir="ltr">General Knowledge</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">2.</td>
-                    <td class="s2" dir="ltr">V.E.T</td>
+                    <td></td>
+                    <td class="s2" dir="ltr">Reading/Recitation</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -596,22 +562,9 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">3.</td>
-                    <td class="s2" dir="ltr">SURYA Art / Craft / Drawing</td>
+                    <td dir="ltr">1</td>
+                    <td class="s2" dir="ltr">V.E.D</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td dir="ltr">4.</td>
-                    <td class="s2" dir="ltr">Neatness</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -624,8 +577,9 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">5.</td>
-                    <td class="s2" dir="ltr">Discipline</td>
+                    <td dir="ltr">2</td>
+                    <td class="s2" dir="ltr">Art / Drawing</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -638,8 +592,9 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">6.</td>
-                    <td class="s2" dir="ltr">Activities</td>
+                    <td dir="ltr">3</td>
+                    <td class="s2" dir="ltr">punctuality</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -651,9 +606,53 @@
                     <td></td>
                     <td></td>
                   </tr>
-                  <!-- Attendance -->
                   <tr>
-                    <td colspan="2" class="pink-text">ATTENDANCE</td>
+                    <td dir="ltr">4</td>
+                    <td class="s2">Discipline</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">5</td>
+                    <td class="s2">Neatness</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">6</td>
+                    <td class="s2">Activities</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr class="attendance-months">
+                    <td rowspan="2" class="attendance-header">ATTENDANCE</td>
                     <td>April</td>
                     <td>May</td>
                     <td>June</td>
@@ -667,8 +666,7 @@
                     <td>February</td>
                     <td>March</td>
                   </tr>
-                  <tr class="tall-row">
-                    <td colspan="2"></td>
+                  <tr class="attendance-boxes">
                     <td></td>
                     <td></td>
                     <td></td>
@@ -682,22 +680,61 @@
                     <td></td>
                     <td></td>
                   </tr>
-                  <!-- Signatures -->
-                  <tr class="tall-row">
-                    <td colspan="2" dir="ltr">Class Teacher's Signature</td>
-                    <td colspan="10"></td>
+                  <tr>
+                    <td colspan="2" dir="ltr">Class Teacher's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
-                  <tr class="tall-row">
-                    <td colspan="2" dir="ltr">Principal's Signature</td>
-                    <td colspan="10"></td>
+                  <tr>
+                    <td colspan="2" dir="ltr">Principal's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
-                  <tr class="tall-row">
-                    <td colspan="2" dir="ltr">Parent's Signature</td>
-                    <td colspan="10"></td>
+                  <tr>
+                    <td colspan="2" dir="ltr">Parent's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
-                  <tr class="tall-row">
+                  <tr>
                     <td colspan="2" dir="ltr">Remarks</td>
-                    <td colspan="10"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
                 </tbody>
               </table>
@@ -718,7 +755,7 @@
               <table class="waffle" cellspacing="0" cellpadding="0">
                 <tbody>
                   <tr>
-                    <td class="s0" dir="ltr" colspan="12">Name of the Student (Full Name) : ____________________________ &nbsp;&nbsp; Class : ______ &nbsp;&nbsp; Sec : ______ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the Teacher : ____________________</td>
+                    <td class="s0" dir="ltr" colspan="13">Name of the Student (Full Name) : ____________________________ &nbsp;&nbsp; Class : ______ &nbsp;&nbsp; Sec : ______ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the Teacher : ____________________</td>
                   </tr>
                   <tr>
                     <td></td>
@@ -727,40 +764,29 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td colspan="4" class="s3">(With Degy Designation)</td>
-                    <td class="s3" rowspan="2">TOTAL<br>100%</td>
-                    <td class="s3" rowspan="2">Grade</td>
+                    <td></td>
+                    <td></td>
+                    <td colspan="3">Weightage for promotion</td>
+                    <td class="s3" dir="ltr" rowspan="2">TOTAL<br>100%</td>
+                    <td class="s3" dir="ltr" rowspan="2">Grade</td>
                   </tr>
                   <tr>
                     <td class="s3">S.No.</td>
                     <td class="s4">Subject</td>
-                    <td class="s3" dir="ltr">Unit<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Unit<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Yearly<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Yearly<br>Full<br>100 M</td>
-                    <td class="s3" dir="ltr">Unit<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Yearly<br>Half<br>25 M</td>
-                    <td class="s3" dir="ltr">Full Exam<br>25 M</td>
-                    <td class="s3" dir="ltr">Yearly Exam<br>100 M</td>
-                  </tr>
-                  <!-- 9 Subjects -->
-                  <tr>
-                    <td dir="ltr">1.</td>
-                    <td class="s2" dir="ltr">English Language ( ECA )</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td class="s3" dir="ltr">I Unit<br>Test</td>
+                    <td class="s3" dir="ltr">II Unit<br>Test</td>
+                    <td class="s3" dir="ltr">III unit<br>Test</td>
+                    <td class="s3" dir="ltr">IV Unit <br>Test</td>
+                    <td class="s3" dir="ltr">Term<br>Exam.</td>
+                    <td class="s3" dir="ltr">Annual<br>Exam.</td>
+                    <td class="s3" dir="ltr">Unit Exams<br>25%</td>
+                    <td class="s3" dir="ltr">Term Exam<br>25%</td>
+                    <td class="s3" dir="ltr">Annual<br>Exam<br>50%</td>
                   </tr>
                   <tr>
-                    <td dir="ltr">2.</td>
-                    <td class="s2" dir="ltr">English Literature ( ECA )</td>
+                    <td dir="ltr">1</td>
+                    <td class="s2" dir="ltr">English Literature</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -773,21 +799,7 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">3.</td>
-                    <td class="s2">Second Language (Multilingual)</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td dir="ltr">4.</td>
+                    <td dir="ltr">2</td>
                     <td class="s2">Spelling / Writing</td>
                     <td></td>
                     <td></td>
@@ -799,23 +811,25 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                  </tr>
-                  <tr>
-                    <td dir="ltr">5.</td>
-                    <td class="s2" dir="ltr">Third Language (Multilingual)</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">6.</td>
+                    <td dir="ltr">3</td>
+                    <td class="s2" dir="ltr">Second Language (Hindi/Telugu)</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">4</td>
                     <td class="s2">Mathematics</td>
                     <td></td>
                     <td></td>
@@ -827,24 +841,12 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                  </tr>
-                  <tr>
-                    <td dir="ltr">7.</td>
-                    <td class="s2" dir="ltr">Gen. Challenge (Multilingual)</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">8.</td>
-                    <td class="s2" dir="ltr">Mind Scape E.V.S.</td>
+                    <td dir="ltr">5</td>
+                    <td class="s2" dir="ltr">E.V.S</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -857,7 +859,7 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">9.</td>
+                    <td dir="ltr">6</td>
                     <td class="s2" dir="ltr">Computer</td>
                     <td></td>
                     <td></td>
@@ -869,11 +871,12 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
                   </tr>
-                  <!-- Calculations -->
                   <tr>
                     <td></td>
-                    <td class="s2 pink-text">TOTAL</td>
+                    <td class="s2">TOTAL</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -898,6 +901,7 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
                   </tr>
                   <tr>
                     <td></td>
@@ -912,25 +916,12 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                  </tr>
-                  <!-- 6 Activities -->
-                  <tr>
-                    <td dir="ltr">1.</td>
-                    <td class="s2" dir="ltr">General Knowledge</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">2.</td>
-                    <td class="s2" dir="ltr">V.E.T</td>
+                    <td></td>
+                    <td class="s2" dir="ltr">Reading/Recitation</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -943,22 +934,9 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">3.</td>
-                    <td class="s2" dir="ltr">SURYA Art / Craft / Drawing</td>
+                    <td dir="ltr">1</td>
+                    <td class="s2" dir="ltr">V.E.D</td>
                     <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td dir="ltr">4.</td>
-                    <td class="s2" dir="ltr">Neatness</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -971,8 +949,9 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">5.</td>
-                    <td class="s2" dir="ltr">Discipline</td>
+                    <td dir="ltr">2</td>
+                    <td class="s2" dir="ltr">Art / Drawing</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -985,8 +964,9 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td dir="ltr">6.</td>
-                    <td class="s2" dir="ltr">Activities</td>
+                    <td dir="ltr">3</td>
+                    <td class="s2" dir="ltr">punctuality</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -998,9 +978,53 @@
                     <td></td>
                     <td></td>
                   </tr>
-                  <!-- Attendance -->
                   <tr>
-                    <td colspan="2" class="pink-text">ATTENDANCE</td>
+                    <td dir="ltr">4</td>
+                    <td class="s2">Discipline</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">5</td>
+                    <td class="s2">Neatness</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">6</td>
+                    <td class="s2">Activities</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr class="attendance-months">
+                    <td rowspan="2" class="attendance-header">ATTENDANCE</td>
                     <td>April</td>
                     <td>May</td>
                     <td>June</td>
@@ -1014,8 +1038,7 @@
                     <td>February</td>
                     <td>March</td>
                   </tr>
-                  <tr class="tall-row">
-                    <td colspan="2"></td>
+                  <tr class="attendance-boxes">
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1029,22 +1052,61 @@
                     <td></td>
                     <td></td>
                   </tr>
-                  <!-- Signatures -->
-                  <tr class="tall-row">
-                    <td colspan="2" dir="ltr">Class Teacher's Signature</td>
-                    <td colspan="10"></td>
+                  <tr>
+                    <td colspan="2" dir="ltr">Class Teacher's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
-                  <tr class="tall-row">
-                    <td colspan="2" dir="ltr">Principal's Signature</td>
-                    <td colspan="10"></td>
+                  <tr>
+                    <td colspan="2" dir="ltr">Principal's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
-                  <tr class="tall-row">
-                    <td colspan="2" dir="ltr">Parent's Signature</td>
-                    <td colspan="10"></td>
+                  <tr>
+                    <td colspan="2" dir="ltr">Parent's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
-                  <tr class="tall-row">
+                  <tr>
                     <td colspan="2" dir="ltr">Remarks</td>
-                    <td colspan="10"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
                 </tbody>
               </table>
