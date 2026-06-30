@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Student Report Card</title>
+<style>
+  :root {
+    --bg-gradient: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+    --card-width: 45vw;
+    --card-height: calc(var(--card-width) * 1.4); /* 5:7 Aspect Ratio */
+    --transition-speed: 1.2s;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+  }
+
+  @media (min-width: 1000px) {
+    :root {
+      --card-width: 450px;
+      --card-height: 630px;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* 3D Scene Wrapper */
+  .scene {
+    width: 100vw;
+    height: 100vh;
+    perspective: 2000px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  /* The main card/book container */
+  .book {
+    position: relative;
+    width: var(--card-width);
+    height: var(--card-height);
+    transform-style: preserve-3d;
+    transition: transform var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+  }
+
+  /* Book States (translates spine to keep card centered) */
+  .book.state-closed-front {
+    transform: translateX(0%);
+  }
+
+  .book.state-opened {
+    transform: translateX(50%);
+  }
+
+  .book.state-closed-back {
+    transform: translateX(100%);
+  }
+
+  /* All pages share these styles */
+  .page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform-style: preserve-3d;
+    transform-origin: left center;
+    transition: transform var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* Front Cover (Page 1) */
+  .page-cover-front {
+    z-index: 5;
+  }
+  .page-cover-front.flipped {
+    z-index: 1;
+  }
+
+  /* Inside Right / Back Cover (Page 2) */
+  .page-inside-right {
+    z-index: 1;
+  }
+  .page-inside-right.flipped {
+    z-index: 5;
+  }
+
+  /* Page Sides */
+  .page-side {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+  }
+
+  /* Page-specific background images/positions */
+  .front-side-cover {
+    background-image: url('FRONT.png');
+  }
+
+  /* Inside Left: Holds left half of the HTML table */
+  .back-side-cover {
+    background: #ffffff;
+    transform: rotateY(180deg);
+  }
+
+  /* Inside Right: Holds right half of the HTML table */
+  .front-side-inside {
+    background: #ffffff;
+  }
+
+  .back-side-inside {
+    background-image: url('BACK.png');
+    transform: rotateY(180deg);
+  }
+
+  /* Shadow overlays for page folds (realism) */
+  .shadow-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transition: opacity var(--transition-speed);
+    z-index: 10;
+  }
+
+  /* Left-side shadows */
+  .back-side-cover .shadow-overlay {
+    background: linear-gradient(to right, rgba(0,0,0,0.05) 80%, rgba(0,0,0,0.2) 100%);
+    opacity: 0;
+  }
+
+  /* Right-side shadows */
+  .front-side-inside .shadow-overlay {
+    background: linear-gradient(to left, rgba(0,0,0,0.05) 80%, rgba(0,0,0,0.2) 100%);
+    opacity: 0;
+  }
+
+  /* Class triggers for active flip states */
+  .page.flipped {
+    transform: rotateY(-180deg);
+  }
+
+  /* Adjust shadow opacity based on flipping state */
+  .page.flipped .back-side-cover .shadow-overlay {
+    opacity: 1;
+  }
+  .book.state-opened .front-side-inside .shadow-overlay {
+    opacity: 0.8;
+  }
+
+  /* Spine Highlight */
+  .spine-highlight {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 10px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.2) 100%);
+    z-index: 20;
+    pointer-events: none;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+
+  /* Navigation Buttons */
+  .nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: white;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    user-select: none;
+  }
+
+  .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .nav-btn:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .nav-prev {
+    left: 5vw;
+  }
+
+  .nav-next {
+    right: 5vw;
+  }
+
+  @media (max-width: 768px) {
+    .nav-btn {
+      width: 40px;
+      height: 40px;
+      font-size: 1.4rem;
+    }
+    .nav-prev {
+      left: 1.5vw;
+    }
+    .nav-next {
+      right: 1.5vw;
+    }
+  }
+
+  /* Hide disabled navigation buttons */
+  .nav-btn.disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* --- TABLE SPREAD STYLE LAYOUT --- */
+  .table-half-container {
+    width: var(--card-width);
+    height: var(--card-height);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* The actual table wrapper that spans both pages */
+  .table-full-wrapper {
+    width: calc(var(--card-width) * 2);
+    height: var(--card-height);
+    position: absolute;
+    top: 0;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+  }
+
+  /* Left page container position */
+  .left-half .table-full-wrapper {
+    left: 0;
+  }
+
+  /* Right page container position */
+  .right-half .table-full-wrapper {
+    left: calc(var(--card-width) * -1);
+  }
+
+  /* Progress Card Table Styles (Pink, Black, White theme) */
+  .ritz {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .waffle {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #000000;
+  }
+
+  /* Responsive Font Sizing */
+  .waffle td, .waffle th {
+    font-size: calc(var(--card-width) * 0.021);
+    border: 1px solid #000000;
+    padding: 2px 4px;
+    vertical-align: middle;
+    text-align: center;
+    background: #ffffff;
+  }
+
+  /* Top Student Info Banner Row */
+  .waffle .s0 {
+    font-weight: bold;
+    background-color: #fce4ec; /* Light Pink */
+    color: #000000;
+    text-align: left;
+    padding: 6px 12px;
+    font-size: calc(var(--card-width) * 0.023);
+    border-bottom: 2px solid #000000;
+  }
+
+  /* Header cell styles */
+  .waffle .s3 {
+    background-color: #f8bbd0; /* Medium Pink */
+    font-weight: bold;
+    color: #000000;
+  }
+
+  .waffle .s4 {
+    background-color: #f8bbd0; /* Medium Pink */
+    font-weight: bold;
+    text-align: left;
+    color: #000000;
+  }
+
+  /* Subject column / Left aligned text */
+  .waffle .s2 {
+    text-align: left;
+    font-weight: 500;
+  }
+
+  /* Totals and Attendance headers */
+  .waffle td[rowspan="2"], .waffle td[colspan="3"] {
+    background-color: #f8bbd0;
+    font-weight: bold;
+  }
+
+  .waffle tr:nth-child(21) td, .waffle tr:nth-child(11) td, .waffle tr:nth-child(12) td, .waffle tr:nth-child(13) td {
+    font-weight: bold;
+    background-color: #fce4ec;
+  }
+
+  .waffle tr:nth-child(23) td, .waffle tr:nth-child(24) td, .waffle tr:nth-child(25) td, .waffle tr:nth-child(26) td {
+    text-align: left;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <!-- Navigation Controls -->
+  <button class="nav-btn nav-prev disabled" id="btn-prev" onclick="handlePrev()">&lt;</button>
+  <button class="nav-btn nav-next" id="btn-next" onclick="handleNext()">&gt;</button>
+
+  <div class="book state-closed-front" id="book">
+    
+    <!-- Page 1: Cover (Flips left to show inside left) -->
+    <div class="page page-cover-front" id="page1">
+      <div class="page-side front-side-cover">
+        <div class="spine-highlight"></div>
+      </div>
+      <div class="page-side back-side-cover left-half">
+        <!-- Render left half of progress card table -->
+        <div class="table-half-container">
+          <div class="table-full-wrapper">
+            <div class="ritz" dir="ltr">
+              <table class="waffle" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <td class="s0" dir="ltr" colspan="13">Name of the Student (Full Name) : ____________________________ &nbsp;&nbsp; Class : ______ &nbsp;&nbsp; Sec : ______ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the Teacher : ____________________</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td colspan="3">Weightage for promotion</td>
+                    <td class="s3" dir="ltr" rowspan="2">TOTAL<br>100%</td>
+                    <td class="s3" dir="ltr" rowspan="2">Grade</td>
+                  </tr>
+                  <tr>
+                    <td class="s3">S.No.</td>
+                    <td class="s4">Subject</td>
+                    <td class="s3" dir="ltr">I Unit<br>Test</td>
+                    <td class="s3" dir="ltr">II Unit<br>Test</td>
+                    <td class="s3" dir="ltr">III unit<br>Test</td>
+                    <td class="s3" dir="ltr">IV Unit <br>Test</td>
+                    <td class="s3" dir="ltr">Term<br>Exam.</td>
+                    <td class="s3" dir="ltr">Annual<br>Exam.</td>
+                    <td class="s3" dir="ltr">Unit Exams<br>25%</td>
+                    <td class="s3" dir="ltr">Term Exam<br>25%</td>
+                    <td class="s3" dir="ltr">Annual<br>Exam<br>50%</td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">1</td>
+                    <td class="s2" dir="ltr">English Literature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">2</td>
+                    <td class="s2">Spelling / Writing</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">3</td>
+                    <td class="s2" dir="ltr">Second Language (Hindi/Telugu)</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">4</td>
+                    <td class="s2">Mathematics</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">5</td>
+                    <td class="s2" dir="ltr">E.V.S</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">6</td>
+                    <td class="s2" dir="ltr">Computer</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2">TOTAL</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2">%</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2">Grade</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2" dir="ltr">Reading/Recitation</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">1</td>
+                    <td class="s2" dir="ltr">V.E.D</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">2</td>
+                    <td class="s2" dir="ltr">Art / Drawing</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">3</td>
+                    <td class="s2" dir="ltr">punctuality</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">4</td>
+                    <td class="s2">Discipline</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">5</td>
+                    <td class="s2">Neatness</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">6</td>
+                    <td class="s2">Activities</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td rowspan="2">ATTENDANCE</td>
+                    <td>April</td>
+                    <td>May</td>
+                    <td>June</td>
+                    <td>July</td>
+                    <td>August</td>
+                    <td>September</td>
+                    <td>October</td>
+                    <td>November</td>
+                    <td>December</td>
+                    <td>January</td>
+                    <td>February</td>
+                    <td>March</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" dir="ltr">Class Teacher's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" dir="ltr">Principal's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" dir="ltr">Parent's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" dir="ltr">Remarks</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="shadow-overlay"></div>
+      </div>
+    </div>
+
+    <!-- Page 2: Inside & Back (Flipped state of cover reveals this. Flipped state of this page reveals Back Cover) -->
+    <div class="page page-inside-right" id="page2">
+      <div class="page-side front-side-inside right-half">
+        <!-- Render right half of progress card table -->
+        <div class="table-half-container">
+          <div class="table-full-wrapper">
+            <div class="ritz" dir="ltr">
+              <table class="waffle" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <td class="s0" dir="ltr" colspan="13">Name of the Student (Full Name) : ____________________________ &nbsp;&nbsp; Class : ______ &nbsp;&nbsp; Sec : ______ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the Teacher : ____________________</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td colspan="3">Weightage for promotion</td>
+                    <td class="s3" dir="ltr" rowspan="2">TOTAL<br>100%</td>
+                    <td class="s3" dir="ltr" rowspan="2">Grade</td>
+                  </tr>
+                  <tr>
+                    <td class="s3">S.No.</td>
+                    <td class="s4">Subject</td>
+                    <td class="s3" dir="ltr">I Unit<br>Test</td>
+                    <td class="s3" dir="ltr">II Unit<br>Test</td>
+                    <td class="s3" dir="ltr">III unit<br>Test</td>
+                    <td class="s3" dir="ltr">IV Unit <br>Test</td>
+                    <td class="s3" dir="ltr">Term<br>Exam.</td>
+                    <td class="s3" dir="ltr">Annual<br>Exam.</td>
+                    <td class="s3" dir="ltr">Unit Exams<br>25%</td>
+                    <td class="s3" dir="ltr">Term Exam<br>25%</td>
+                    <td class="s3" dir="ltr">Annual<br>Exam<br>50%</td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">1</td>
+                    <td class="s2" dir="ltr">English Literature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">2</td>
+                    <td class="s2">Spelling / Writing</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">3</td>
+                    <td class="s2" dir="ltr">Second Language (Hindi/Telugu)</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">4</td>
+                    <td class="s2">Mathematics</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">5</td>
+                    <td class="s2" dir="ltr">E.V.S</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">6</td>
+                    <td class="s2" dir="ltr">Computer</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2">TOTAL</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2">%</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2">Grade</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td class="s2" dir="ltr">Reading/Recitation</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">1</td>
+                    <td class="s2" dir="ltr">V.E.D</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">2</td>
+                    <td class="s2" dir="ltr">Art / Drawing</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">3</td>
+                    <td class="s2" dir="ltr">punctuality</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">4</td>
+                    <td class="s2">Discipline</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">5</td>
+                    <td class="s2">Neatness</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">6</td>
+                    <td class="s2">Activities</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td rowspan="2">ATTENDANCE</td>
+                    <td>April</td>
+                    <td>May</td>
+                    <td>June</td>
+                    <td>July</td>
+                    <td>August</td>
+                    <td>September</td>
+                    <td>October</td>
+                    <td>November</td>
+                    <td>December</td>
+                    <td>January</td>
+                    <td>February</td>
+                    <td>March</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" dir="ltr">Class Teacher's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" dir="ltr">Principal's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" dir="ltr">Parent's signature</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" dir="ltr">Remarks</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="shadow-overlay"></div>
+      </div>
+      <div class="page-side back-side-inside"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const book = document.getElementById('book');
+  const page1 = document.getElementById('page1');
+  const page2 = document.getElementById('page2');
+  
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+
+  // Page States: 'front', 'inside', 'back'
+  let currentState = 'front';
+
+  function updateNavButtons() {
+    if (currentState === 'front') {
+      btnPrev.classList.add('disabled');
+      btnNext.classList.remove('disabled');
+    } else if (currentState === 'inside') {
+      btnPrev.classList.remove('disabled');
+      btnNext.classList.remove('disabled');
+    } else if (currentState === 'back') {
+      btnPrev.classList.remove('disabled');
+      btnNext.classList.add('disabled');
+    }
+  }
+
+  function goToFront() {
+    currentState = 'front';
+    book.className = 'book state-closed-front';
+    page1.classList.remove('flipped');
+    page2.classList.remove('flipped');
+    updateNavButtons();
+  }
+
+  function goToInside() {
+    currentState = 'inside';
+    book.className = 'book state-opened';
+    page1.classList.add('flipped');
+    page2.classList.remove('flipped');
+    updateNavButtons();
+  }
+
+  function goToBack() {
+    currentState = 'back';
+    book.className = 'book state-closed-back';
+    page1.classList.add('flipped');
+    page2.classList.add('flipped');
+    updateNavButtons();
+  }
+
+  function handlePrev() {
+    if (currentState === 'inside') {
+      goToFront();
+    } else if (currentState === 'back') {
+      goToInside();
+    }
+  }
+
+  function handleNext() {
+    if (currentState === 'front') {
+      goToInside();
+    } else if (currentState === 'inside') {
+      goToBack();
+    }
+  }
+</script>
+
+</body>
+</html>
