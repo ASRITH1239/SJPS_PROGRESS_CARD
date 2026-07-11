@@ -7,17 +7,25 @@
 <style>
   :root {
     --bg-gradient: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
-    --card-width: 45vw;
+    /* Use responsive viewport units: 40vw per page to leave space for side buttons */
+    --card-width: 40vw;
     --card-height: calc(var(--card-width) * 1.4); /* 5:7 Aspect Ratio */
     --transition-speed: 1.2s;
     --shadow-color: rgba(0, 0, 0, 0.4);
+    --zoom-factor: 1;
   }
 
+  /* On larger screens, cap the card size so it doesn't get excessively large */
   @media (min-width: 1000px) {
     :root {
-      --card-width: 450px;
-      --card-height: 630px;
+      --card-width: 400px;
+      --card-height: 560px;
     }
+  }
+
+  body.zoomed {
+    --zoom-factor: 1.35;
+    overflow: auto !important; /* Enable scrolling when zoomed in */
   }
 
   * {
@@ -54,20 +62,20 @@
     height: var(--card-height);
     transform-style: preserve-3d;
     transition: transform var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
-    pointer-events: none;
+    pointer-events: none; /* Disable direct card clicks/touches */
   }
 
   /* Book States (translates spine to keep card centered) */
   .book.state-closed-front {
-    transform: translateX(0%);
+    transform: translateX(0%) scale(var(--zoom-factor));
   }
 
   .book.state-opened {
-    transform: translateX(50%);
+    transform: translateX(50%) scale(var(--zoom-factor));
   }
 
   .book.state-closed-back {
-    transform: translateX(100%);
+    transform: translateX(100%) scale(var(--zoom-factor));
   }
 
   /* All pages share these styles */
@@ -406,9 +414,63 @@
       right: 15px;
     }
   }
+
+  /* Zoom Toggle Button */
+  .zoom-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 30px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 200;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+  }
+
+  .zoom-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .zoom-btn:active {
+    transform: translateY(1px);
+  }
+
+  .zoom-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  @media (max-width: 768px) {
+    .zoom-btn {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      top: 15px;
+      left: 15px;
+    }
+  }
 </style>
 </head>
 <body>
+
+<!-- Zoom Toggle Button -->
+<button class="zoom-btn" onclick="toggleZoom()" id="btn-zoom">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+  Zoom In
+</button>
 
 <!-- Download Excel Button -->
 <a href="SJPS_progress%20card.xlsx" download class="download-excel-btn">
@@ -600,23 +662,8 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td></td>
-                    <td class="s2" dir="ltr">Reading/Recitation</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                  <tr>
                     <td dir="ltr">1</td>
-                    <td class="s2" dir="ltr">V.E.D</td>
+                    <td class="s2" dir="ltr">Reading/Dictation</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -631,7 +678,7 @@
                   </tr>
                   <tr>
                     <td dir="ltr">2</td>
-                    <td class="s2" dir="ltr">Art / Drawing</td>
+                    <td class="s2" dir="ltr">V.E.D</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -646,7 +693,7 @@
                   </tr>
                   <tr>
                     <td dir="ltr">3</td>
-                    <td class="s2" dir="ltr">punctuality</td>
+                    <td class="s2" dir="ltr">Art / Drawing</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -661,7 +708,7 @@
                   </tr>
                   <tr>
                     <td dir="ltr">4</td>
-                    <td class="s2">Discipline</td>
+                    <td class="s2" dir="ltr">Punctuality</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -676,7 +723,7 @@
                   </tr>
                   <tr>
                     <td dir="ltr">5</td>
-                    <td class="s2">Neatness</td>
+                    <td class="s2">Discipline</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -691,6 +738,21 @@
                   </tr>
                   <tr>
                     <td dir="ltr">6</td>
+                    <td class="s2">Neatness</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">7</td>
                     <td class="s2">Activities</td>
                     <td></td>
                     <td></td>
@@ -972,23 +1034,8 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td></td>
-                    <td class="s2" dir="ltr">Reading/Recitation</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                  <tr>
                     <td dir="ltr">1</td>
-                    <td class="s2" dir="ltr">V.E.D</td>
+                    <td class="s2" dir="ltr">Reading/Dictation</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1003,7 +1050,7 @@
                   </tr>
                   <tr>
                     <td dir="ltr">2</td>
-                    <td class="s2" dir="ltr">Art / Drawing</td>
+                    <td class="s2" dir="ltr">V.E.D</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1018,7 +1065,7 @@
                   </tr>
                   <tr>
                     <td dir="ltr">3</td>
-                    <td class="s2" dir="ltr">punctuality</td>
+                    <td class="s2" dir="ltr">Art / Drawing</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1033,7 +1080,7 @@
                   </tr>
                   <tr>
                     <td dir="ltr">4</td>
-                    <td class="s2">Discipline</td>
+                    <td class="s2" dir="ltr">Punctuality</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1048,7 +1095,7 @@
                   </tr>
                   <tr>
                     <td dir="ltr">5</td>
-                    <td class="s2">Neatness</td>
+                    <td class="s2">Discipline</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1063,6 +1110,21 @@
                   </tr>
                   <tr>
                     <td dir="ltr">6</td>
+                    <td class="s2">Neatness</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td dir="ltr">7</td>
                     <td class="s2">Activities</td>
                     <td></td>
                     <td></td>
@@ -1235,6 +1297,19 @@
       goToInside();
     } else if (currentState === 'inside') {
       goToBack();
+    }
+  }
+
+  let isZoomed = false;
+  function toggleZoom() {
+    isZoomed = !isZoomed;
+    const btnZoom = document.getElementById('btn-zoom');
+    if (isZoomed) {
+      document.body.classList.add('zoomed');
+      btnZoom.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Zoom Out`;
+    } else {
+      document.body.classList.remove('zoomed');
+      btnZoom.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Zoom In`;
     }
   }
 </script>
